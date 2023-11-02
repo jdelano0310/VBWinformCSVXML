@@ -14,18 +14,22 @@ Public Class Form1
     Private Sub FillDictionaryFromExcelFile(dict As Dictionary(Of String, String))
 
         ' using ClosedXML package, read the Excel file into the dictionary
-        Dim workbook As New XLWorkbook(txtExcelFile.Text)
-        Dim ws1 As IXLWorksheet = workbook.Worksheet(1)
-        Dim row As Int16 = 1
-        Dim idValue As String = ws1.Cell(row, 1).Value.ToString()
+        Try
+            Dim workbook As New XLWorkbook(txtExcelFile.Text)
+            Dim ws1 As IXLWorksheet = workbook.Worksheet(1)
+            Dim row As Int16 = 1
+            Dim idValue As String = ws1.Cell(row, 1).Value.ToString()
 
-        Do While idValue.Trim.Length > 0
-            dict.Add(idValue, idValue)
-            row += 1
-            idValue = ws1.Cell(row, 1).Value.ToString()
-        Loop
+            Do While idValue.Trim.Length > 0
+                dict.Add(idValue, idValue)
+                row += 1
+                idValue = ws1.Cell(row, 1).Value.ToString()
+            Loop
 
-        workbook.Dispose()
+            workbook.Dispose()
+        Catch ex As Exception
+            MsgBox("Unable to access the Excel File, please close it if it is open and try again", MsgBoxStyle.Critical, "File Problem")
+        End Try
 
     End Sub
 
@@ -100,6 +104,11 @@ Public Class Form1
             FillDictionaryFromExcelFile(idDict)
         Else
             FillDictionaryFromCSVFile(idDict)
+        End If
+
+        If idDict.Count = 0 Then
+            UpdateStatusLabel("ID File - problem")
+            Exit Sub
         End If
 
         ' load the XML file into a document object, loop through each message element

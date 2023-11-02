@@ -13,7 +13,7 @@ Public Class Form1
 
     Private Sub FillDictionaryFromExcelFile(dict As Dictionary(Of String, String))
 
-        ' using CloseXML package, read the Excel file into the dictionary
+        ' using ClosedXML package, read the Excel file into the dictionary
         Dim workbook As New XLWorkbook(txtExcelFile.Text)
         Dim ws1 As IXLWorksheet = workbook.Worksheet(1)
         Dim row As Int16 = 1
@@ -113,15 +113,16 @@ Public Class Form1
         File.Copy(txtXMLFile.Text, txtXMLFile.Text.Replace(".xml", ".backup"), True)
 
         xmlFile.Load(txtXMLFile.Text)
-        nodeList = xmlFile.SelectNodes("//Message")
+        nodeList = xmlFile.SelectNodes("//Message") ' select all the message parts of the xml file
 
+        ' loop through all the messages found in the xml file
         For Each nd As XmlElement In nodeList
             messageID = nd.ChildNodes(0).InnerText
 
             If idDict.ContainsKey(messageID) Then
-                ' the id was found in the file loaded previousle
-                ' set the indicator to 1
-                nd.ChildNodes(1).InnerText = "1"
+                ' the id was found in the file loaded into the dictionary previously
+                ' set the indicator to 1 if it is currently 0
+                If nd.ChildNodes(1).InnerText = "0" Then nd.ChildNodes(1).InnerText = "1"
             Else
                 ' the id was not found - remove it from the xml file
                 nd.ParentNode.RemoveChild(nd)
